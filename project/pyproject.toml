@@ -1,0 +1,8 @@
+[project]
+name = "invoice-celery"
+version = "1.0.0"
+description = "Invoice demo using flask, weasyprint, and celery"
+dependencies = [
+    "flask",
+    "celery",
+]

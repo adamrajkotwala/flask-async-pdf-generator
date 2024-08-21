@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Invoice {{ d.invoice.invoiceNo }}</h1>
+    <p>Year: {{ d.invoice.year }}</p>
+    <table>
+        <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+        <tr>
+            <td>Permit</td>
+            <td>{{ d.invoice.qtdPermit }}</td>
+            <td>{{ d.invoice.totalLicense }}</td>
+        </tr>
+        <tr>
+            <td>Static Permit</td>
+            <td>{{ d.invoice.qtdStaticPermit }}</td>
+            <td>{{ d.invoice.totalStaticPermit }}</td>
+        </tr>
+        <tr>
+            <td>CML CMS Permit</td>
+            <td>{{ d.invoice.qtdCmlCmsPermit }}</td>
+            <td>{{ d.invoice.totalCmlCmsPermit }}</td>
+        </tr>
+        <tr>
+            <th>Total</th>
+            <th></th>
+            <th>{{ d.invoice.totalPartial }}</th>
+        </tr>
+    </table>
+    <h2>Signs</h2>
+    <ul>
+        {% for sign in d.signs %}
+            <li>{{ sign }}</li>
+        {% endfor %}
+    </ul>
+    {{ repeated_text }}
+</body>
+</html>

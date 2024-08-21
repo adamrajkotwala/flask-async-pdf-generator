@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice and Task Status Forms</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            border-color: #0056b3;
+            outline: none;
+        }
+
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1 1 calc(50% - 10px);
+            padding: 10px;
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #003f7f;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            text-align: center;
+            color: #333;
+            font-size: 18px;
+        }
+    </style>
+    <script>
+        function submitForm(action, formId) {
+            var form = document.getElementById(formId);
+            form.action = action;
+            form.submit();
+        }
+
+        function checkTaskStatus() {
+            var taskId = document.getElementById('task_id').value;
+            if (taskId) {
+                fetch(`/task_status/${taskId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const statusElement = document.getElementById('status-message');
+                        statusElement.textContent = `Task status: ${data.state}`;
+                        
+                        if (data.state === 'PENDING' || data.state === 'PROGRESS') {
+                            setTimeout(checkTaskStatus, 2000); // Check every 2 seconds
+                        } else if (data.state === 'SUCCESS') {
+                            statusElement.textContent = `Task completed successfully!`;
+                        } else if (data.state === 'FAILURE') {
+                            statusElement.textContent = `Task failed.`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching task status:', error);
+                    });
+            } else {
+                alert('Please enter a Task ID.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Invoice and Task Status Forms</h1>
+
+        <!-- Original Invoice Form -->
+        <form id="invoiceForm" method="post">
+            <label for="qtdPermit">Quantity of Permit:</label>
+            <input type="number" id="qtdPermit" name="qtdPermit" value="10" required>
+
+            <label for="totalLicense">Total License:</label>
+            <input type="number" id="totalLicense" name="totalLicense" step="0.01" value="123" required>
+
+            <label for="qtdStaticPermit">Quantity of Static Permit:</label>
+            <input type="number" id="qtdStaticPermit" name="qtdStaticPermit" value="23452" required>
+
+            <label for="totalStaticPermit">Total Static Permit:</label>
+            <input type="number" id="totalStaticPermit" name="totalStaticPermit" value="756" step="0.01" required>
+
+            <label for="qtdCmlCmsPermit">Quantity of CML CMS Permit:</label>
+            <input type="number" id="qtdCmlCmsPermit" name="qtdCmlCmsPermit" value="8" required>
+
+            <label for="totalCmlCmsPermit">Total CML CMS Permit:</label>
+            <input type="number" id="totalCmlCmsPermit" name="totalCmlCmsPermit" value="97" step="0.01" required>
+
+            <label for="signs">Signs (comma-separated):</label>
+            <input type="text" id="signs" name="signs" value="adam, josh, arthur">
+
+            <label for="numPdfs">Number of PDFs to Generate (if multiple):</label>
+            <input type="number" id="numPdfs" name="numPdfs" value="20" required>
+
+            <div class="button-container">
+                <button type="button" onclick="submitForm('/submit_invoice', 'invoiceForm')">Submit Asynchronous</button>
+                <button type="button" onclick="submitForm('/submit_invoice_sync', 'invoiceForm')">Submit Synchronous</button>
+                <button type="button" onclick="submitForm('/generate_multiple_pdfs', 'invoiceForm')">Generate Multiple PDFs (Async)</button>
+                <button type="button" onclick="submitForm('/generate_multiple_pdfs_sync', 'invoiceForm')">Generate Multiple PDFs (Sync)</button>
+            </div>
+        </form>
+
+        <br>
+
+        <form id="taskStatusForm" method="post" onsubmit="event.preventDefault(); checkTaskStatus();">
+            <h2>Check Task Status (Celery Version)</h2>
+            <label for="task_id">Task ID:</label>
+            <input type="text" id="task_id" name="task_id" required>
+
+            <button type="button" onclick="checkTaskStatus()">Check Status</button>
+
+            <div id="status-message" class="status-message">
+            </div>
+        </form>
+    </div>
+</body>
+</html>
